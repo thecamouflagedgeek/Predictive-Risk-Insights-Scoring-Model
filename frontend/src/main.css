@@ -1,0 +1,29 @@
+body {
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+}
+
+.center {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 350px;
+  margin: auto;
+  margin-top: 100px;
+  padding: 20px;
+  background: #1e293b;
+  border-radius: 10px;
+}
+
+button {
+  padding: 10px;
+  margin-top: 10px;
+  width: 100%;
+  cursor: pointer;
+}
