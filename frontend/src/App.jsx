@@ -9,7 +9,8 @@ import Processing from "./pages/Processing"
 import Dashboard from "./pages/Dashboard"
 import Explainability from "./pages/Explainability"
 import Simulation from "./pages/Simulation"
-
+import FraudDetection from "./pages/FraudDetection"
+import Compliance from "./pages/Compliance"
 export default function App() {
   return (
     <BrowserRouter>
@@ -23,6 +24,9 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/explain" element={<Explainability />} />
         <Route path="/simulate" element={<Simulation />} />
+        <Route path="/fraud" element={<FraudDetection />} />
+        <Route path="/compliance" element={<Compliance />} />
+
       </Routes>
     </BrowserRouter>
   )
