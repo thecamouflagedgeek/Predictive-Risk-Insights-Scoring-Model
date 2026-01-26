@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import scoring
+from routers import scoring, sentiment, document
 
 # Initialize the FastAPI App
 app = FastAPI(
@@ -22,6 +22,8 @@ app.add_middleware(
 # 2. Include Feature Routers
 # As you build more features (Fraud, Sentiment, etc.), you just add their routers here
 app.include_router(scoring.router)
+app.include_router(sentiment.router)
+app.include_router(document.router)
 
 # 3. Basic Health Check
 @app.get("/", tags=["Health"])

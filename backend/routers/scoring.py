@@ -14,7 +14,7 @@ async def get_score(data: BorrowerApplication):
     )
     
     # Analyze sentiment
-    sentiment = vibe_check(data.some_text_field)  # Replace with the actual text field
+    sentiment = vibe_check(data.comments)
     
     return {
         "user_id": data.user_id,
