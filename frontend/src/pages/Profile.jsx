@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom"
+import { useApplication } from "../context/ApplicationContext"
 
 export default function Profile() {
   const nav = useNavigate()
+  const { app, setApp } = useApplication()
 
   return (
     <div className="relative min-h-screen overflow-hidden flex items-center justify-center text-white">
@@ -53,8 +55,16 @@ export default function Profile() {
 
         <div className="mt-8 flex flex-col gap-4">
 
+          {/* Monthly Income */}
           <input
             placeholder="Monthly Income"
+            type="number"
+            onChange={e =>
+              setApp(prev => ({
+                ...prev,
+                income: Number(e.target.value)
+              }))
+            }
             className="
               w-full px-4 py-3 rounded-lg
               bg-white/10 border border-white/10
@@ -64,8 +74,17 @@ export default function Profile() {
             "
           />
 
+          {/* Employment Tenure */}
           <input
             placeholder="Employment Tenure (months)"
+            type="number"
+            onChange={e =>
+              setApp(prev => ({
+                ...prev,
+                employment_tenure: Number(e.target.value),
+                epfo_months: Number(e.target.value)
+              }))
+            }
             className="
               w-full px-4 py-3 rounded-lg
               bg-white/10 border border-white/10
@@ -75,8 +94,21 @@ export default function Profile() {
             "
           />
 
+          {/* Utility Payment Delay */}
           <input
             placeholder="Utility Payment Delay Avg"
+            type="number"
+            onChange={e => {
+              const delay = Number(e.target.value)
+              setApp(prev => ({
+                ...prev,
+                utility_delay: delay,
+                utility_repayment_rate: Math.max(
+                  0,
+                  Math.min(1, 1 - delay / 10)
+                )
+              }))
+            }}
             className="
               w-full px-4 py-3 rounded-lg
               bg-white/10 border border-white/10
@@ -92,7 +124,7 @@ export default function Profile() {
           onClick={() => nav("/upload")}
           className="
             mt-8 w-full py-3 rounded-xl
-             bg-[#b25dfc]
+            bg-[#b25dfc]
             text-white font-semibold
             shadow-lg shadow-[#6d5dfc]/40
             hover:bg-[#c600fd]

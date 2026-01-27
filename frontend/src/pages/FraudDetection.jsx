@@ -1,6 +1,54 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
+import { useApplication } from "../context/ApplicationContext"
 
 export default function FraudDetection() {
+  const { app, setApp } = useApplication()
+  const [fraudResult, setFraudResult] = useState(null)
+
+  useEffect(() => {
+    async function runFraudCheck() {
+      // Step 1: Log application attempt
+      await fetch("http://127.0.0.1:8000/fraud/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: app.phone || "9999999999",
+          pan: app.pan || "ABCDE1234F"
+        })
+      })
+
+      // Step 2: Check loan stacking
+      const res = await fetch("http://127.0.0.1:8000/fraud/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: app.phone || "9999999999",
+          pan: app.pan || "ABCDE1234F"
+        })
+      })
+
+      const data = await res.json()
+      setFraudResult(data)
+
+      setApp(prev => ({
+        ...prev,
+        fraud_result: data
+      }))
+    }
+
+    runFraudCheck()
+  }, [])
+
+  if (!fraudResult) {
+    return (
+      <div className="min-h-screen bg-[#0a0814] text-white flex items-center justify-center">
+        Running fraud analysis...
+      </div>
+    )
+  }
+
+  const isFlagged = fraudResult.status === "FLAGGED"
+
   return (
     <div className="relative min-h-screen bg-[#0a0814] text-white px-8 py-10">
 
@@ -26,18 +74,21 @@ export default function FraudDetection() {
 
           <ul className="space-y-4 text-sm">
             <li className="flex justify-between">
-              <span className="text-gray-300">KYC Match</span>
+              <span className="text-gray-300">Document Authenticity</span>
+              <span className={
+                app.document_result?.analysis?.risk_level === "high"
+                  ? "text-red-400"
+                  : "text-emerald-400"
+              }>
+                {app.document_result?.analysis?.risk_level === "high"
+                  ? "Suspicious"
+                  : "Verified"}
+              </span>
+            </li>
+
+            <li className="flex justify-between">
+              <span className="text-gray-300">Identity Consistency</span>
               <span className="text-emerald-400">Verified</span>
-            </li>
-
-            <li className="flex justify-between">
-              <span className="text-gray-300">Document Tampering</span>
-              <span className="text-emerald-400">Not Detected</span>
-            </li>
-
-            <li className="flex justify-between">
-              <span className="text-gray-300">Synthetic Identity Risk</span>
-              <span className="text-purple-300">Low</span>
             </li>
           </ul>
         </div>
@@ -50,18 +101,17 @@ export default function FraudDetection() {
 
           <ul className="space-y-4 text-sm">
             <li className="flex justify-between">
-              <span className="text-gray-300">Income Consistency</span>
-              <span className="text-yellow-400">Minor Mismatch</span>
+              <span className="text-gray-300">Application Behaviour</span>
+              <span className={isFlagged ? "text-yellow-400" : "text-emerald-400"}>
+                {isFlagged ? "Unusual Frequency" : "Normal"}
+              </span>
             </li>
 
             <li className="flex justify-between">
-              <span className="text-gray-300">Cash Flow Stability</span>
-              <span className="text-emerald-400">Stable</span>
-            </li>
-
-            <li className="flex justify-between">
-              <span className="text-gray-300">Transaction Spikes</span>
-              <span className="text-purple-300">Normal Range</span>
+              <span className="text-gray-300">Sentiment Risk</span>
+              <span className="text-purple-300">
+                {app.score_result?.sentiment || "Neutral"}
+              </span>
             </li>
           </ul>
         </div>
@@ -74,52 +124,60 @@ export default function FraudDetection() {
 
           <ul className="space-y-4 text-sm">
             <li className="flex justify-between">
-              <span className="text-gray-300">Multiple Active Loans</span>
-              <span className="text-yellow-400">Detected</span>
+              <span className="text-gray-300">Loan Stacking Status</span>
+              <span className={isFlagged ? "text-red-400" : "text-emerald-400"}>
+                {fraudResult.status}
+              </span>
             </li>
 
             <li className="flex justify-between">
-              <span className="text-gray-300">Rapid Loan Applications</span>
-              <span className="text-emerald-400">No</span>
-            </li>
-
-            <li className="flex justify-between">
-              <span className="text-gray-300">Device / IP Reuse</span>
-              <span className="text-purple-300">Low Risk</span>
+              <span className="text-gray-300">Detection Reason</span>
+              <span className="text-gray-300 text-right">
+                {fraudResult.reason}
+              </span>
             </li>
           </ul>
         </div>
       </div>
 
       {/* Decision Section */}
-      <div className="mt-12 rounded-2xl bg-gradient-to-r from-purple-600/20 to-indigo-600/10 border border-purple-500/20 p-6 max-w-4xl">
+      <div className={`mt-12 rounded-2xl border p-6 max-w-4xl ${
+        isFlagged
+          ? "bg-red-600/10 border-red-500/30"
+          : "bg-emerald-600/10 border-emerald-500/30"
+      }`}>
         <h3 className="text-lg font-semibold mb-2">
           Fraud Risk Assessment Outcome
         </h3>
 
         <p className="text-gray-300 text-sm">
-          Mild anomalies detected that do not indicate intentional fraud.
-          Application is suitable for approval with enhanced monitoring or
-          optional manual review.
+          {isFlagged
+            ? "Multiple loan applications detected in a short time window. Manual review recommended."
+            : "No abnormal application patterns detected. Low fraud risk."
+          }
         </p>
 
         <div className="mt-4 flex items-center gap-4">
-          <span className="px-4 py-1 rounded-full text-sm bg-emerald-500/20 text-emerald-400">
-            Risk Level: Low–Moderate
+          <span className={`px-4 py-1 rounded-full text-sm ${
+            isFlagged
+              ? "bg-red-500/20 text-red-400"
+              : "bg-emerald-500/20 text-emerald-400"
+          }`}>
+            Risk Level: {isFlagged ? "High" : "Low"}
           </span>
 
           <span className="px-4 py-1 rounded-full text-sm bg-purple-500/20 text-purple-300">
-            Recommendation: Conditional Approval
+            Recommendation: {isFlagged ? "Manual Review" : "Proceed"}
           </span>
         </div>
       </div>
 
       {/* Footer Note */}
       <div className="mt-10 text-sm text-gray-500 max-w-3xl">
-        Fraud signals are identified using adversarial pattern detection,
-        anomaly scoring, and behavioural consistency checks. In production,
-        these signals would be generated by machine learning models trained
-        on historical fraud patterns and evolving attack vectors.
+        Fraud detection is implemented using a frequency-based heuristic
+        that identifies abnormal loan application behaviour. This approach
+        is effective for early-stage risk filtering and can be extended
+        with ML-based anomaly detection in production.
       </div>
 
     </div>

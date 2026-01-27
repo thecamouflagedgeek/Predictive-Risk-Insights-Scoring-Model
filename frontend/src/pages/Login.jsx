@@ -1,7 +1,21 @@
 import { useNavigate } from "react-router-dom"
+import { useApplication } from "../context/ApplicationContext.jsx"
 
 export default function Login() {
   const nav = useNavigate()
+  const { setApp } = useApplication()
+
+  const handleContinue = () => {
+    // Generate a simple user id for this session
+    const userId = "user_" + Date.now()
+
+    setApp(prev => ({
+      ...prev,
+      user_id: userId
+    }))
+
+    nav("/consent")
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden flex items-center justify-center text-white">
@@ -10,20 +24,18 @@ export default function Login() {
       <div className="absolute inset-0 bg-[#0a0814]" />
 
       {/* Vertical animated glow (login-specific) */}
-      {/* Strong vertical animated glow */}
-<div
-  className="absolute inset-0 animate-loginGlow"
-  style={{
-    background: `
-      radial-gradient(
-        ellipse 35% 60% at center,
-        rgba(147,51,234,0.75),
-        transparent 70%
-      )
-    `
-  }}
-/>
-
+      <div
+        className="absolute inset-0 animate-loginGlow"
+        style={{
+          background: `
+            radial-gradient(
+              ellipse 35% 60% at center,
+              rgba(147,51,234,0.75),
+              transparent 70%
+            )
+          `
+        }}
+      />
 
       {/* Login card */}
       <div className="relative z-10 w-full max-w-md rounded-2xl 
@@ -65,7 +77,7 @@ export default function Login() {
         </div>
 
         <button
-          onClick={() => nav("/consent")}
+          onClick={handleContinue}
           className="
             mt-8 w-full py-3 rounded-xl
             bg-[#b25dfc]

@@ -1,21 +1,47 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useApplication } from "../context/ApplicationContext"
+import { calculateScore } from "../api/api"
 
 export default function Processing() {
   const nav = useNavigate()
+  const { app, setApp } = useApplication()
   const [step, setStep] = useState(0)
 
   useEffect(() => {
-    const steps = [
-      () => setStep(1),
-      () => setStep(2),
-      () => setStep(3),
-      () => nav("/dashboard")
-    ]
+    async function runProcessing() {
+      // STEP 1: Document verification already done in UploadDocs
+      setStep(1)
+      await new Promise(r => setTimeout(r, 800))
 
-    steps.forEach((fn, i) => {
-      setTimeout(fn, (i + 1) * 800)
-    })
+      // STEP 2: Financial + sentiment scoring
+      setStep(2)
+
+      const scoreResult = await calculateScore({
+        user_id: app.user_id,
+        lender_id: app.lender_id,
+        epfo_months: app.epfo_months,
+        utility_repayment_rate: app.utility_repayment_rate,
+        consent_given: app.consent_given,
+        comments: app.comments || "General loan application"
+      })
+
+      setApp(prev => ({
+        ...prev,
+        score_result: scoreResult
+      }))
+
+      await new Promise(r => setTimeout(r, 800))
+
+      // STEP 3: Explainable score ready
+      setStep(3)
+      await new Promise(r => setTimeout(r, 800))
+
+      // DONE → Dashboard
+      nav("/dashboard")
+    }
+
+    runProcessing()
   }, [])
 
   return (

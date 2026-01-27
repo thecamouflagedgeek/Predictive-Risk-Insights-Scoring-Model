@@ -1,15 +1,32 @@
 import { useNavigate } from "react-router-dom"
 import PrismEnergy from "../components/PrismEnergy"
+import { useApplication } from "../context/ApplicationContext"
 
 export default function Landing() {
   const nav = useNavigate()
+  const { setApp } = useApplication()
+
+  const continueAsBorrower = () => {
+    setApp(prev => ({
+      ...prev,
+      role: "borrower"
+    }))
+    nav("/login")
+  }
+
+  const continueAsLender = () => {
+    setApp(prev => ({
+      ...prev,
+      role: "lender"
+    }))
+    nav("/lender/dashboard")
+  }
 
   return (
     <div className="relative min-h-screen text-white bg-[#05030c]">
 
       {/* ===== Ambient Energy Background ===== */}
       <PrismEnergy />
-
 
       {/* ===== CONTENT ===== */}
       <main className="relative z-10">
@@ -30,9 +47,12 @@ export default function Landing() {
             explainable, and responsible lending.
           </p>
 
+          {/* ===== ROLE SELECTION ===== */}
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
+
+            {/* Borrower */}
             <button
-              onClick={() => nav("/login")}
+              onClick={continueAsBorrower}
               className="
                 px-8 py-3 rounded-xl
                 bg-purple-600
@@ -42,20 +62,22 @@ export default function Landing() {
                 transition
               "
             >
-              Get Started
+              Continue as Borrower
             </button>
 
+            {/* Lender */}
             <button
+              onClick={continueAsLender}
               className="
                 px-8 py-3 rounded-xl
-                bg-transparent
-                border border-purple-500/30
-                text-purple-300
-                hover:bg-purple-500/10
+                bg-purple-600
+                text-white font-semibold
+                shadow-lg shadow-purple-600/30
+                hover:bg-purple-500
                 transition
               "
             >
-              Learn More
+              Continue as Lender
             </button>
           </div>
 
@@ -78,7 +100,7 @@ export default function Landing() {
           <div className="mt-14 grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
               ["Step 1", "Secure Consent", "Borrowers explicitly approve financial data usage."],
-              ["Step 2", "AI Risk Analysis", "Models analyze income, behaviour, and stability."],
+              ["Step 2", "Risk Analysis", "Signals analyze income, behaviour, and stability."],
               ["Step 3", "Explainable Score", "Clear factors behind every score are shown."],
               ["Step 4", "Better Decisions", "Lenders act confidently, borrowers understand outcomes."]
             ].map(([step, title, desc]) => (

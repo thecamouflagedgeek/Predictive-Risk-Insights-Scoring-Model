@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import scoring, sentiment, document
+from routers import scoring, sentiment, document, explain, fraud, consent
 
 # Initialize the FastAPI App
 app = FastAPI(
@@ -24,6 +24,10 @@ app.add_middleware(
 app.include_router(scoring.router)
 app.include_router(sentiment.router)
 app.include_router(document.router)
+app.include_router(explain.router)
+app.include_router(fraud.router)
+app.include_router(consent.router)
+
 
 # 3. Basic Health Check
 @app.get("/", tags=["Health"])

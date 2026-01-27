@@ -1,8 +1,33 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useApplication } from "../context/ApplicationContext"
 
 export default function Explainability() {
   const nav = useNavigate()
+  const { app } = useApplication()
+  const [reasons, setReasons] = useState([])
+
+  useEffect(() => {
+    async function fetchExplainability() {
+      const res = await fetch("http://127.0.0.1:8000/explain", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          income: app.income,
+          employment_tenure: app.employment_tenure,
+          utility_delay: app.utility_delay,
+          credit_history: 1 // thin-file default
+        })
+      })
+
+      const data = await res.json()
+      setReasons(data.reasons || [])
+    }
+
+    fetchExplainability()
+  }, [])
 
   return (
     <div className="relative min-h-screen bg-[#0a0814] text-white px-8 py-10">
@@ -27,66 +52,26 @@ export default function Explainability() {
           border border-white/10 shadow-xl p-6
         ">
           <p className="text-xs uppercase tracking-wider text-gray-500 mb-4">
-            Positive Signals
+            Model Reason Codes
           </p>
 
           <ul className="space-y-4 text-sm">
-            <li className="flex justify-between">
-              <span className="text-gray-300">
-                High Monthly Income
-              </span>
-              <span className="text-emerald-400">
-                + Strong Impact
-              </span>
-            </li>
+            {reasons.length === 0 && (
+              <li className="text-gray-400">
+                No adverse factors detected.
+              </li>
+            )}
 
-            <li className="flex justify-between">
-              <span className="text-gray-300">
-                Employment Continuity
-              </span>
-              <span className="text-emerald-400">
-                + Moderate Impact
-              </span>
-            </li>
-
-            <li className="flex justify-between">
-              <span className="text-gray-300">
-                Credit History Length
-              </span>
-              <span className="text-emerald-400">
-                + Mild Impact
-              </span>
-            </li>
-          </ul>
-        </div>
-
-        {/* ================= RISK SIGNALS ================= */}
-        <div className="
-          rounded-2xl bg-white/5 backdrop-blur-xl
-          border border-white/10 shadow-xl p-6
-        ">
-          <p className="text-xs uppercase tracking-wider text-gray-500 mb-4">
-            Risk-Increasing Signals
-          </p>
-
-          <ul className="space-y-4 text-sm">
-            <li className="flex justify-between">
-              <span className="text-gray-300">
-                Utility Payment Delays
-              </span>
-              <span className="text-yellow-400">
-                − Mild Impact
-              </span>
-            </li>
-
-            <li className="flex justify-between">
-              <span className="text-gray-300">
-                Irregular Monthly Cash Flow
-              </span>
-              <span className="text-yellow-400">
-                − Low Impact
-              </span>
-            </li>
+            {reasons.map((reason, idx) => (
+              <li key={idx} className="flex justify-between">
+                <span className="text-gray-300">
+                  {reason}
+                </span>
+                <span className="text-emerald-400">
+                  ✓
+                </span>
+              </li>
+            ))}
           </ul>
         </div>
 
@@ -105,7 +90,9 @@ export default function Explainability() {
                 Fraud Indicators
               </span>
               <span className="text-purple-300">
-                None Detected
+                {app.document_result?.analysis?.risk_level === "high"
+                  ? "Flagged"
+                  : "None Detected"}
               </span>
             </li>
 
@@ -128,48 +115,38 @@ export default function Explainability() {
             </li>
           </ul>
         </div>
-      </div>
 
-      {/* ================= COUNTERFACTUAL / WHAT-IF ================= */}
-      <div className="mt-12 max-w-3xl">
-        <h3 className="text-xl font-semibold mb-4">
-          How can this score improve?
-        </h3>
+        {/* ================= SENTIMENT ================= */}
+        <div className="
+          rounded-2xl bg-white/5 backdrop-blur-xl
+          border border-white/10 shadow-xl p-6
+        ">
+          <p className="text-xs uppercase tracking-wider text-gray-500 mb-4">
+            Behavioral Signal
+          </p>
 
-        <div className="space-y-3 text-sm">
-          <div className="
-            bg-purple-600/10 border border-purple-500/30
-            rounded-xl p-4 text-purple-200
-          ">
-            Increase monthly income by ₹8,000 → Estimated +18 score points
-          </div>
+          <p className="text-sm text-gray-300">
+            Applicant intent analysis indicates:
+          </p>
 
-          <div className="
-            bg-purple-600/10 border border-purple-500/30
-            rounded-xl p-4 text-purple-200
-          ">
-            Reduce utility payment delays → Estimated +12 score points
-          </div>
+          <p className="mt-4 text-lg font-semibold text-purple-300">
+            {app.score_result?.sentiment || "Neutral"}
+          </p>
         </div>
       </div>
 
-      {/* ================= FRAUD TRANSITION ================= */}
-      <div className="mt-16 max-w-4xl rounded-2xl
-                      bg-white/5 border border-white/10
-                      backdrop-blur-xl p-6">
+      {/* ================= FOOTER NOTE ================= */}
+      <div className="mt-12 max-w-4xl text-sm text-gray-500">
+        This explanation is generated using rule-based explainability
+        aligned with regulatory expectations. Each reason directly maps
+        to a deterministic condition in the scoring engine, ensuring
+        auditability and customer fairness.
+      </div>
 
-        <h3 className="text-xl font-semibold mb-2">
-          Fraud & Anomaly Detection
-        </h3>
-
-        <p className="text-gray-400 text-sm mb-4">
-          Beyond creditworthiness, PRISM continuously evaluates fraud risk
-          using adversarial learning and anomaly detection to identify
-          synthetic identities, income manipulation, and loan stacking.
-        </p>
-
+      {/* ================= BACK ================= */}
+      <div className="mt-10">
         <button
-          onClick={() => nav("/fraud")}
+          onClick={() => nav("/dashboard")}
           className="
             px-6 py-3 rounded-xl
             bg-[#b25dfc]
@@ -179,16 +156,8 @@ export default function Explainability() {
             transition
           "
         >
-          View Fraud Detection Analysis
+          Back to Dashboard
         </button>
-      </div>
-
-      {/* ================= FOOTER NOTE ================= */}
-      <div className="mt-12 max-w-4xl text-sm text-gray-500">
-        This explanation is generated using an explainable AI framework.
-        Feature contributions are derived from model-level attribution
-        techniques (e.g., SHAP), combined with counterfactual analysis to
-        support transparency, auditability, and regulatory alignment.
       </div>
 
     </div>

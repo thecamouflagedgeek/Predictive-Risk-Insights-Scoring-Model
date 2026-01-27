@@ -1,7 +1,24 @@
 import { useNavigate } from "react-router-dom"
+import { useApplication } from "../context/ApplicationContext"
+import { checkDocument } from "../api/api"
 
 export default function UploadDocs() {
   const nav = useNavigate()
+  const { setApp } = useApplication()
+
+  const handleFileUpload = async (file) => {
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append("file", file)
+
+    const res = await checkDocument(formData)
+
+    setApp(prev => ({
+      ...prev,
+      document_result: res
+    }))
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden flex items-center justify-center text-white">
@@ -29,7 +46,7 @@ export default function UploadDocs() {
                       border border-white/10
                       shadow-2xl p-8 overflow-hidden">
 
-        {/* Scanning line (inside card only) */}
+        {/* Scanning line */}
         <div
           className="pointer-events-none absolute inset-0 animate-scanLine"
           style={{
@@ -54,12 +71,15 @@ export default function UploadDocs() {
 
         <div className="relative mt-8 flex flex-col gap-4">
 
+          {/* Government ID */}
           <label className="block">
             <span className="text-sm text-gray-300">
               Government ID (Aadhaar / PAN)
             </span>
             <input
               type="file"
+              accept=".pdf"
+              onChange={e => handleFileUpload(e.target.files[0])}
               className="
                 mt-2 w-full px-4 py-3 rounded-lg
                 bg-white/10 border border-white/10
@@ -73,12 +93,15 @@ export default function UploadDocs() {
             />
           </label>
 
+          {/* Income / Address Proof */}
           <label className="block">
             <span className="text-sm text-gray-300">
               Income / Address Proof
             </span>
             <input
               type="file"
+              accept=".pdf"
+              onChange={e => handleFileUpload(e.target.files[0])}
               className="
                 mt-2 w-full px-4 py-3 rounded-lg
                 bg-white/10 border border-white/10

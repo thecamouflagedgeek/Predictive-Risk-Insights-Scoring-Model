@@ -1,7 +1,23 @@
 import { useNavigate } from "react-router-dom"
+import { useApplication } from "../context/ApplicationContext.jsx"
+import { giveConsent } from "../api/api"
 
 export default function Consent() {
   const nav = useNavigate()
+  const { app, setApp } = useApplication()
+
+  const handleConsent = async () => {
+    // Call backend to log consent (DPDPA compliant)
+    await giveConsent(app.user_id)
+
+    // Update local application state
+    setApp(prev => ({
+      ...prev,
+      consent_given: true
+    }))
+
+    nav("/profile")
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden flex items-center justify-center text-white">
@@ -10,18 +26,17 @@ export default function Consent() {
       <div className="absolute inset-0 bg-[#0a0814]" />
 
       <div
-  className="absolute inset-0 animate-shimmer"
-  style={{
-    background: `
-      radial-gradient(
-        circle at center,
-        rgba(147,51,234,0.30),
-        transparent 65%
-      )
-    `
-  }}
-/>
-
+        className="absolute inset-0 animate-shimmer"
+        style={{
+          background: `
+            radial-gradient(
+              circle at center,
+              rgba(147,51,234,0.30),
+              transparent 65%
+            )
+          `
+        }}
+      />
 
       {/* Consent card */}
       <div className="relative z-10 w-full max-w-lg rounded-2xl
@@ -54,13 +69,13 @@ export default function Consent() {
         </div>
 
         <button
-          onClick={() => nav("/profile")}
+          onClick={handleConsent}
           className="
             mt-8 w-full py-3 rounded-xl
             bg-[#b25dfc]
             text-white font-semibold
             shadow-lg shadow-[#6d5dfc]/40
-           hover:bg-[#c600fd]
+            hover:bg-[#c600fd]
             transition
           "
         >
