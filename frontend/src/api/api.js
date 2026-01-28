@@ -35,3 +35,15 @@ export async function checkDocument(formData) {
 
   return res.json()
 }
+// ---------------- RISK ASSESSMENT ----------------
+export async function assessRisk(payload) {
+  const res = await fetch(`${BASE_URL}/risk/assess-full`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+
+  return res.json()
+}

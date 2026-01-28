@@ -29,7 +29,7 @@ export default function Simulation() {
       {/* Header */}
       <div className="mb-10">
         <h2 className="text-3xl font-bold">
-          Risk Simulation & Optimization
+          What if Analysis
         </h2>
         <p className="mt-1 text-gray-400 max-w-2xl">
           Explore how changes in financial behaviour can impact approval outcomes.

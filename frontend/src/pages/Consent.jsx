@@ -7,10 +7,8 @@ export default function Consent() {
   const { app, setApp } = useApplication()
 
   const handleConsent = async () => {
-    // Call backend to log consent (DPDPA compliant)
     await giveConsent(app.user_id)
 
-    // Update local application state
     setApp(prev => ({
       ...prev,
       consent_given: true
@@ -22,7 +20,7 @@ export default function Consent() {
   return (
     <div className="relative min-h-screen overflow-hidden flex items-center justify-center text-white">
 
-      {/* Base background */}
+      {/* Background */}
       <div className="absolute inset-0 bg-[#0a0814]" />
 
       <div
@@ -38,34 +36,81 @@ export default function Consent() {
         }}
       />
 
-      {/* Consent card */}
-      <div className="relative z-10 w-full max-w-lg rounded-2xl
+      {/* Consent Card */}
+      <div className="relative z-10 w-full max-w-xl rounded-2xl
                       bg-white/5 backdrop-blur-xl
                       border border-white/10
                       shadow-2xl p-8">
 
         <h2 className="text-3xl font-bold text-center">
-          Data Consent
+          Data Consent & Privacy Agreement
         </h2>
 
-        <p className="mt-4 text-center text-gray-400">
-          We access your financial and identity data only to generate
-          your credit risk score and meet regulatory requirements.
+        <p className="mt-4 text-center text-gray-400 text-sm">
+          This platform complies with the Digital Personal Data Protection Act (DPDPA), 2023.
         </p>
 
+        {/* English Section */}
         <div className="mt-6 space-y-3 text-sm text-gray-300">
-          <div className="flex items-start gap-3">
+
+          <div className="flex gap-2">
             <span className="text-purple-400">•</span>
-            Bank statements & transaction summaries
+            Collection of financial, employment and identity data strictly for credit risk evaluation
           </div>
-          <div className="flex items-start gap-3">
+
+          <div className="flex gap-2">
             <span className="text-purple-400">•</span>
-            Utility payment history & employment verification
+            Secure processing using encrypted storage (AES-256) and secure transmission (TLS 1.3)
           </div>
-          <div className="flex items-start gap-3">
+
+          <div className="flex gap-2">
             <span className="text-purple-400">•</span>
-            Identity verification for fraud prevention
+            Use of alternative data sources including EPFO, banking APIs and utility records
           </div>
+
+          <div className="flex gap-2">
+            <span className="text-purple-400">•</span>
+            AI-based fraud detection and explainable credit scoring
+          </div>
+
+          <div className="flex gap-2">
+            <span className="text-purple-400">•</span>
+            Your data will never be sold or shared with unauthorized third parties
+          </div>
+
+        </div>
+
+        {/* Divider */}
+        <div className="my-6 border-t border-white/10" />
+
+        {/* Hindi Section */}
+        <div className="space-y-3 text-sm text-gray-300">
+
+          <div className="flex gap-2">
+            <span className="text-purple-400">•</span>
+            आपकी वित्तीय, रोजगार और पहचान संबंधी जानकारी केवल क्रेडिट मूल्यांकन के लिए उपयोग की जाएगी
+          </div>
+
+          <div className="flex gap-2">
+            <span className="text-purple-400">•</span>
+            सभी डेटा को सुरक्षित एन्क्रिप्शन और सुरक्षित नेटवर्क के माध्यम से प्रोसेस किया जाएगा
+          </div>
+
+          <div className="flex gap-2">
+            <span className="text-purple-400">•</span>
+            EPFO, बैंकिंग और यूटिलिटी डेटा का उपयोग वैकल्पिक क्रेडिट प्रोफाइल बनाने हेतु किया जाएगा
+          </div>
+
+          <div className="flex gap-2">
+            <span className="text-purple-400">•</span>
+            आपकी अनुमति के बिना किसी भी थर्ड पार्टी को डेटा साझा नहीं किया जाएगा
+          </div>
+
+          <div className="flex gap-2">
+            <span className="text-purple-400">•</span>
+            आप कभी भी अपनी सहमति वापस ले सकते हैं
+          </div>
+
         </div>
 
         <button
@@ -79,12 +124,15 @@ export default function Consent() {
             transition
           "
         >
-          I Agree & Continue
+          I Agree / मैं सहमत हूँ
         </button>
 
-        <p className="mt-6 text-center text-xs text-gray-500">
-          You can revoke access at any time.
+        <p className="mt-5 text-center text-xs text-gray-500">
+          By continuing, you acknowledge informed consent under DPDPA 2023.
+          <br />
+          आगे बढ़कर आप डिजिटल पर्सनल डेटा प्रोटेक्शन अधिनियम 2023 के अंतर्गत सहमति प्रदान करते हैं।
         </p>
+
       </div>
     </div>
   )

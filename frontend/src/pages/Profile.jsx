@@ -2,62 +2,112 @@ import { useNavigate } from "react-router-dom"
 import { useApplication } from "../context/ApplicationContext"
 
 export default function Profile() {
+
   const nav = useNavigate()
   const { app, setApp } = useApplication()
+
+  const handleContinue = () => {
+
+    // Basic validation
+    if (!app.phone || !app.income || !app.employment_tenure) {
+      alert("Please complete mandatory fields")
+      return
+    }
+
+    nav("/upload")
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden flex items-center justify-center text-white">
 
-      {/* Base background */}
+      {/* Background layers */}
       <div className="absolute inset-0 bg-[#0a0814]" />
 
-      {/* Purple system glow */}
       <div
         className="absolute inset-0"
         style={{
           background: `
-            radial-gradient(
-              circle at top left,
-              rgba(147,51,234,0.25),
-              transparent 55%
-            )
+            radial-gradient(circle at top left, rgba(147,51,234,0.25), transparent 55%),
+            radial-gradient(circle at bottom right, rgba(34,197,94,0.18), transparent 60%)
           `
         }}
       />
 
-      {/* Green financial health accent */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: `
-            radial-gradient(
-              circle at bottom right,
-              rgba(34,197,94,0.18),
-              transparent 60%
-            )
-          `
-        }}
-      />
-
-      {/* Profile card */}
-      <div className="relative z-10 w-full max-w-lg rounded-2xl
+      {/* Card */}
+      <div className="relative z-10 w-full max-w-xl rounded-2xl
                       bg-white/5 backdrop-blur-xl
                       border border-white/10
                       shadow-2xl p-8">
 
         <h2 className="text-3xl font-bold text-center">
-          Financial Profile
+          Financial Profile Setup
         </h2>
 
         <p className="mt-2 text-center text-gray-400">
-          Help us understand your financial stability.
+          Used for personalized credit risk analysis
         </p>
 
-        <div className="mt-8 flex flex-col gap-4">
+        {/* SECTION — PERSONAL ID */}
+        <div className="mt-6">
 
-          {/* Monthly Income */}
+          <p className="text-sm text-purple-300 mb-2">
+            Identity Information
+          </p>
+
           <input
-            placeholder="Monthly Income"
+            placeholder="Mobile Number"
+            type="tel"
+            onChange={e =>
+              setApp(prev => ({
+                ...prev,
+                phone: e.target.value
+              }))
+            }
+            className="input-style"
+          />
+        </div>
+
+        {/* SECTION — TRADITIONAL CREDIT */}
+        <div className="mt-6">
+
+          <p className="text-sm text-purple-300 mb-2">
+            Traditional Credit Information
+          </p>
+
+          <input
+            placeholder="CIBIL / Credit Score (if available)"
+            type="number"
+            onChange={e =>
+              setApp(prev => ({
+                ...prev,
+                credit_score: Number(e.target.value)
+              }))
+            }
+            className="input-style"
+          />
+
+          <input
+            placeholder="Active Loans Count"
+            type="number"
+            onChange={e =>
+              setApp(prev => ({
+                ...prev,
+                active_loans: Number(e.target.value)
+              }))
+            }
+            className="input-style mt-3"
+          />
+        </div>
+
+        {/* SECTION — FINANCIAL STABILITY */}
+        <div className="mt-6">
+
+          <p className="text-sm text-green-300 mb-2">
+            Income & Employment
+          </p>
+
+          <input
+            placeholder="Monthly Income (₹)"
             type="number"
             onChange={e =>
               setApp(prev => ({
@@ -65,18 +115,11 @@ export default function Profile() {
                 income: Number(e.target.value)
               }))
             }
-            className="
-              w-full px-4 py-3 rounded-lg
-              bg-white/10 border border-white/10
-              text-white placeholder-gray-400
-              focus:outline-none focus:border-purple-400
-              transition
-            "
+            className="input-style"
           />
 
-          {/* Employment Tenure */}
           <input
-            placeholder="Employment Tenure (months)"
+            placeholder="Employment Tenure (Months)"
             type="number"
             onChange={e =>
               setApp(prev => ({
@@ -85,18 +128,19 @@ export default function Profile() {
                 epfo_months: Number(e.target.value)
               }))
             }
-            className="
-              w-full px-4 py-3 rounded-lg
-              bg-white/10 border border-white/10
-              text-white placeholder-gray-400
-              focus:outline-none focus:border-purple-400
-              transition
-            "
+            className="input-style mt-3"
           />
+        </div>
 
-          {/* Utility Payment Delay */}
+        {/* SECTION — NON TRADITIONAL DATA */}
+        <div className="mt-6">
+
+          <p className="text-sm text-blue-300 mb-2">
+            Alternative Data Signals
+          </p>
+
           <input
-            placeholder="Utility Payment Delay Avg"
+            placeholder="Utility Bill Payment Delay (Avg days)"
             type="number"
             onChange={e => {
               const delay = Number(e.target.value)
@@ -109,19 +153,25 @@ export default function Profile() {
                 )
               }))
             }}
-            className="
-              w-full px-4 py-3 rounded-lg
-              bg-white/10 border border-white/10
-              text-white placeholder-gray-400
-              focus:outline-none focus:border-green-400
-              transition
-            "
+            className="input-style"
           />
 
+          <input
+            placeholder="Monthly Rent (₹) (if applicable)"
+            type="number"
+            onChange={e =>
+              setApp(prev => ({
+                ...prev,
+                rent_amount: Number(e.target.value)
+              }))
+            }
+            className="input-style mt-3"
+          />
         </div>
 
+        {/* CTA */}
         <button
-          onClick={() => nav("/upload")}
+          onClick={handleContinue}
           className="
             mt-8 w-full py-3 rounded-xl
             bg-[#b25dfc]
@@ -131,12 +181,13 @@ export default function Profile() {
             transition
           "
         >
-          Continue
+          Continue to Verification
         </button>
 
-        <p className="mt-6 text-center text-xs text-gray-500">
-          This information improves score accuracy.
+        <p className="mt-5 text-center text-xs text-gray-500">
+          Data protected under DPDPA 2023 guidelines
         </p>
+
       </div>
     </div>
   )

@@ -53,7 +53,7 @@ export default function Login() {
 
         <div className="mt-8 flex flex-col gap-4">
           <input
-            placeholder="Email"
+            placeholder="Name"
             className="
               w-full px-4 py-3 rounded-lg
               bg-white/10 border border-white/10
